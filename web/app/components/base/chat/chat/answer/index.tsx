@@ -166,7 +166,7 @@ const Answer: FC<AnswerProps> = ({
           )}
         </div>
       )}
-      <div className="chat-answer-container group ml-4 w-0 grow pb-4" ref={containerRef} data-testid="chat-answer-container">
+      <div className={cn('chat-answer-container group w-0 grow pb-4', hideAvatar ? 'ml-0' : 'ml-4')} ref={containerRef} data-testid="chat-answer-container">
         {/* Block 1: Workflow Process + Human Input Forms */}
         {hasHumanInputs && (
           <div className={cn('group relative pr-10', chatAnswerContainerInner)} data-testid="chat-answer-container-humaninput">

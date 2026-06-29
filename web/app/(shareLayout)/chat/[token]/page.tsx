@@ -6,7 +6,7 @@ import AuthenticatedLayout from '../../components/authenticated-layout'
 const Chat = () => {
   return (
     <AuthenticatedLayout>
-      <ChatWithHistoryWrap />
+      <ChatWithHistoryWrap customerServiceMode />
     </AuthenticatedLayout>
   )
 }

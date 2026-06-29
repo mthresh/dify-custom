@@ -163,6 +163,24 @@ describe('app-card-utils', () => {
     expect(state.accessibleUrl).toBe(`https://example.com${basePath}/chat/token-1`)
   })
 
+  it('should not duplicate basePath when building the web app accessible url', () => {
+    const state = getAppCardDisplayState({
+      appInfo: {
+        ...baseAppInfo,
+        site: {
+          app_base_url: `https://example.com${basePath}`,
+          access_token: 'token-1',
+        },
+      } as AppDetailResponse,
+      cardType: 'webapp',
+      currentWorkflow: null,
+      canManageWebApp: true,
+      canManageApi: true,
+    })
+
+    expect(state.accessibleUrl).toBe(`https://example.com${basePath}/chat/token-1`)
+  })
+
   it('should disable workflow cards without a graph or start node', () => {
     const unpublishedState = getAppCardDisplayState({
       appInfo: { ...baseAppInfo, mode: AppModeEnum.WORKFLOW },

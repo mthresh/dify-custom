@@ -57,6 +57,7 @@ const ChatWrapper = () => {
     setIsResponding,
     allInputsHidden,
     initUserVariables,
+    customerServiceMode,
   } = useChatWithHistoryContext()
 
   const appSourceType = isInstalledApp ? AppSourceType.installedApp : AppSourceType.webApp
@@ -328,16 +329,22 @@ const ChatWrapper = () => {
     if (welcomeMessage.suggestedQuestions && welcomeMessage.suggestedQuestions?.length > 0) {
       return (
         <div className="flex min-h-[50vh] items-center justify-center px-4 py-12">
-          <div className="flex max-w-[720px] grow gap-4">
-            <AppIcon
-              size="xl"
-              iconType={appData?.site.icon_type}
-              icon={appData?.site.icon}
-              background={appData?.site.icon_background}
-              imageUrl={appData?.site.icon_url}
-            />
+          <div className={cn('flex grow gap-4', customerServiceMode ? 'max-w-[1040px]' : 'max-w-[720px]')}>
+            {!customerServiceMode && (
+              <AppIcon
+                size="xl"
+                iconType={appData?.site.icon_type}
+                icon={appData?.site.icon}
+                background={appData?.site.icon_background}
+                imageUrl={appData?.site.icon_url}
+              />
+            )}
             <div className="w-0 grow">
-              <div className="grow rounded-2xl bg-chat-bubble-bg px-4 py-3 body-lg-regular text-text-primary">
+              <div className={cn(
+                'grow rounded-2xl bg-chat-bubble-bg px-4 py-3 body-lg-regular text-text-primary',
+                customerServiceMode && 'rounded-xl bg-white/80 shadow-xs',
+              )}
+              >
                 <Markdown content={welcomeMessage.content} />
                 <SuggestedQuestions item={welcomeMessage} />
               </div>
@@ -348,14 +355,16 @@ const ChatWrapper = () => {
     }
     return (
       <div className={cn('flex min-h-[50vh] flex-col items-center justify-center gap-3 py-12')}>
-        <AppIcon
-          size="xl"
-          iconType={appData?.site.icon_type}
-          icon={appData?.site.icon}
-          background={appData?.site.icon_background}
-          imageUrl={appData?.site.icon_url}
-        />
-        <div className="max-w-[768px] px-4">
+        {!customerServiceMode && (
+          <AppIcon
+            size="xl"
+            iconType={appData?.site.icon_type}
+            icon={appData?.site.icon}
+            background={appData?.site.icon_background}
+            imageUrl={appData?.site.icon_url}
+          />
+        )}
+        <div className={cn('px-4', customerServiceMode ? 'max-w-[1040px]' : 'max-w-[768px]')}>
           <Markdown className="body-2xl-regular! text-text-tertiary!" content={welcomeMessage.content} />
         </div>
       </div>
@@ -371,6 +380,7 @@ const ChatWrapper = () => {
     inputsForms.length,
     respondingState,
     allInputsHidden,
+    customerServiceMode,
   ])
 
   const answerIcon = (appData?.site && appData.site.use_icon_as_answer_icon)
@@ -386,16 +396,28 @@ const ChatWrapper = () => {
 
   return (
     <div
-      className="h-full overflow-hidden bg-chatbot-bg"
+      className={cn('h-full overflow-hidden bg-chatbot-bg', customerServiceMode && 'bg-transparent')}
     >
       <Chat
         appData={appData ?? undefined}
         config={appConfig}
         chatList={messageList}
         isResponding={respondingState}
-        chatContainerInnerClassName={`mx-auto pt-6 w-full max-w-[768px] ${isMobile && 'px-4'}`}
-        chatFooterClassName="pb-4"
-        chatFooterInnerClassName={`mx-auto w-full max-w-[768px] ${isMobile ? 'px-2' : 'px-4'}`}
+        chatContainerInnerClassName={cn(
+          'mx-auto w-full',
+          customerServiceMode
+            ? 'max-w-[1040px] px-4 pt-6 sm:px-8 sm:pt-10'
+            : 'max-w-[768px] pt-6',
+          !customerServiceMode && isMobile && 'px-4',
+        )}
+        chatFooterClassName={cn(customerServiceMode ? 'pb-4 sm:pb-6' : 'pb-4')}
+        chatFooterInnerClassName={cn(
+          'mx-auto w-full',
+          customerServiceMode
+            ? 'max-w-[1040px] px-4 sm:px-8'
+            : 'max-w-[768px]',
+          !customerServiceMode && (isMobile ? 'px-2' : 'px-4'),
+        )}
         onSend={doSend}
         inputs={currentConversationId ? currentConversationInputs as any : newConversationInputs}
         inputsForm={inputsForms}
@@ -413,13 +435,16 @@ const ChatWrapper = () => {
         onFeedback={handleFeedback}
         suggestedQuestions={suggestedQuestions}
         answerIcon={answerIcon}
+        chatAnswerContainerInner={customerServiceMode ? 'pr-0 [&>div]:rounded-xl [&>div]:bg-white/80 [&>div]:shadow-xs' : undefined}
         hideProcessDetail
         themeBuilder={themeBuilder}
         switchSibling={doSwitchSibling}
         inputDisabled={inputDisabled}
         sidebarCollapseState={sidebarCollapseState}
+        hideAvatar={customerServiceMode}
+        noSpacing={customerServiceMode}
         questionIcon={
-          initUserVariables?.avatar_url
+          !customerServiceMode && initUserVariables?.avatar_url
             ? (
                 <Avatar
                   avatar={initUserVariables.avatar_url}

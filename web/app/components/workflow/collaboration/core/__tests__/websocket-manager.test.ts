@@ -14,9 +14,18 @@ type IoOptions = {
 }
 
 const ioMock = vi.hoisted(() => vi.fn())
+const varMocks = vi.hoisted(() => ({
+  basePath: '',
+}))
 
 vi.mock('socket.io-client', () => ({
   io: (...args: Parameters<typeof ioMock>) => ioMock(...args),
+}))
+
+vi.mock('@/utils/var', () => ({
+  get basePath() {
+    return varMocks.basePath
+  },
 }))
 
 const createMockSocket = (id: string): MockSocket => {
@@ -46,6 +55,7 @@ describe('WebSocketClient', () => {
   beforeEach(() => {
     vi.resetModules()
     ioMock.mockReset()
+    varMocks.basePath = ''
   })
 
   it('connects with default url and registers base listeners', async () => {
@@ -68,6 +78,23 @@ describe('WebSocketClient', () => {
     expect(mockSocket.on).toHaveBeenCalledWith('connect', expect.any(Function))
     expect(mockSocket.on).toHaveBeenCalledWith('disconnect', expect.any(Function))
     expect(mockSocket.on).toHaveBeenCalledWith('connect_error', expect.any(Function))
+  })
+
+  it('uses basePath in the Socket.IO path', async () => {
+    varMocks.basePath = '/dify'
+    const mockSocket = createMockSocket('socket-base-path')
+    ioMock.mockImplementation(() => mockSocket)
+
+    const { WebSocketClient } = await import('../websocket-manager')
+    const client = new WebSocketClient()
+    client.connect('app-base-path')
+
+    expect(ioMock).toHaveBeenCalledWith(
+      'ws://localhost:5001',
+      expect.objectContaining({
+        path: '/dify/socket.io',
+      }),
+    )
   })
 
   it('reuses existing connected socket and avoids duplicate connections', async () => {

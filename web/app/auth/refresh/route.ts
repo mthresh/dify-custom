@@ -2,8 +2,26 @@ import { resolveServerConsoleApiUrl } from '@/service/server'
 import { basePath } from '@/utils/var'
 
 const REFRESH_TOKEN_PATH = '/refresh-token'
-const AUTH_REFRESH_PATH = `${basePath}/auth/refresh`
-const DEFAULT_REDIRECT_PATH = `${basePath}/`
+const AUTH_REFRESH_PATH = '/auth/refresh'
+const DEFAULT_REDIRECT_PATH = '/'
+
+const withBasePath = (pathname: string) => {
+  if (!basePath || pathname === basePath || pathname.startsWith(`${basePath}/`))
+    return pathname
+
+  return `${basePath}${pathname.startsWith('/') ? pathname : `/${pathname}`}`
+}
+
+const withoutBasePath = (pathname: string) => {
+  if (!basePath)
+    return pathname
+  if (pathname === basePath)
+    return '/'
+  if (pathname.startsWith(`${basePath}/`))
+    return pathname.slice(basePath.length)
+
+  return pathname
+}
 
 const resolveSafeRedirectPath = (request: Request) => {
   const requestUrl = new URL(request.url)
@@ -16,10 +34,10 @@ const resolveSafeRedirectPath = (request: Request) => {
     const target = new URL(redirectUrl, requestUrl.origin)
     if (target.origin !== requestUrl.origin)
       return DEFAULT_REDIRECT_PATH
-    if (target.pathname === AUTH_REFRESH_PATH)
+    if (withoutBasePath(target.pathname) === AUTH_REFRESH_PATH)
       return DEFAULT_REDIRECT_PATH
 
-    return `${target.pathname}${target.search}`
+    return `${withoutBasePath(target.pathname)}${target.search}`
   }
   catch {
     return DEFAULT_REDIRECT_PATH
@@ -56,7 +74,7 @@ const createRedirectResponse = (pathname: string, setCookies: string[] = []) => 
 }
 
 const createSigninRedirectResponse = (redirectPath: string) =>
-  createRedirectResponse(`${basePath}/signin?redirect_url=${encodeURIComponent(redirectPath)}`)
+  createRedirectResponse(`${withBasePath('/signin')}?redirect_url=${encodeURIComponent(redirectPath)}`)
 
 export async function GET(request: Request) {
   const redirectPath = resolveSafeRedirectPath(request)
@@ -79,7 +97,7 @@ export async function GET(request: Request) {
     if (!response.ok)
       return createSigninRedirectResponse(redirectPath)
 
-    return createRedirectResponse(redirectPath, getSetCookieHeaders(response.headers))
+    return createRedirectResponse(withBasePath(redirectPath), getSetCookieHeaders(response.headers))
   }
   catch {
     return createSigninRedirectResponse(redirectPath)

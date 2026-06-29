@@ -2,7 +2,7 @@ import type { TFunction } from 'i18next'
 import type { I18nKeysByPrefix } from '@/types/i18n'
 import { AccessMode } from '@/models/access-control'
 import { AppModeEnum } from '@/types/app'
-import { basePath } from '@/utils/var'
+import { buildWebAppUrl } from '../web-app-url'
 
 type AccessSubjectsLike = {
   groups?: unknown[]
@@ -50,7 +50,11 @@ export const getPublisherAppUrl = ({
   appBaseUrl: string
   accessToken: string
   mode?: AppModeEnum
-}) => `${appBaseUrl}${basePath}/${getPublisherAppMode(mode)}/${accessToken}`
+}) => buildWebAppUrl({
+  appBaseUrl,
+  appMode: getPublisherAppMode(mode),
+  accessToken,
+})
 
 export const isPublisherAccessConfigured = (appDetail: AppDetailLike | null | undefined, appAccessSubjects: AccessSubjectsLike) => {
   if (!appDetail || !appAccessSubjects)

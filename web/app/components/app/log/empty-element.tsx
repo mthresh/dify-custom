@@ -9,7 +9,7 @@ import { systemFeaturesQueryOptions } from '@/features/system-features/client'
 import Link from '@/next/link'
 import { AppModeEnum } from '@/types/app'
 import { getRedirectionPath } from '@/utils/app-redirection'
-import { basePath } from '@/utils/var'
+import { buildWebAppUrl } from '../web-app-url'
 
 const ThreeDotsIcon = ({ className }: SVGProps<SVGElement>) => {
   return (
@@ -46,7 +46,11 @@ const EmptyElement: FC<{ appDetail: App }> = ({ appDetail }) => {
             components={{
               shareLink: (
                 <Link
-                  href={`${appDetail.site.app_base_url}${basePath}/${getWebAppType(appDetail.mode)}/${appDetail.site.access_token}`}
+                  href={buildWebAppUrl({
+                    appBaseUrl: appDetail.site.app_base_url,
+                    appMode: getWebAppType(appDetail.mode),
+                    accessToken: appDetail.site.access_token,
+                  })}
                   className="text-util-colors-blue-blue-600"
                   target="_blank"
                   rel="noopener noreferrer"

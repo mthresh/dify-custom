@@ -2,8 +2,10 @@ import type { Socket } from 'socket.io-client'
 import type { DebugInfo, WebSocketConfig } from '../types/websocket'
 import { io } from 'socket.io-client'
 import { SOCKET_URL } from '@/config'
+import { basePath } from '@/utils/var'
 
 type AckArgs = unknown[]
+const SOCKET_IO_PATH = `${basePath}/socket.io`
 
 const isUnauthorizedAck = (...ackArgs: AckArgs): boolean => {
   const [first, second] = ackArgs
@@ -80,7 +82,7 @@ export class WebSocketClient {
       transports: WebSocketConfig['transports']
       withCredentials?: boolean
     } = {
-      path: '/socket.io',
+      path: SOCKET_IO_PATH,
       transports: this.transports,
       withCredentials: this.withCredentials,
     }

@@ -6,12 +6,12 @@ import { serverSystemFeaturesQueryOptions } from '@/features/system-features/ser
 import { headers } from '@/next/headers'
 import { redirect } from '@/next/navigation'
 import { getServerConsoleClientContext, resolveServerConsoleApiUrl, serverConsoleQuery } from '@/service/server'
-import { basePath } from '@/utils/var'
 
 const CURRENT_PATHNAME_HEADER = 'x-dify-pathname'
 const CURRENT_SEARCH_HEADER = 'x-dify-search'
 const ACCOUNT_PROFILE_PATH = '/account/profile'
 const AUTH_REFRESH_PATH = '/auth/refresh'
+const DEFAULT_CURRENT_PATH = '/'
 
 type ConsoleErrorPayload = {
   code?: string
@@ -32,14 +32,14 @@ const parseConsoleErrorPayload = async (error: Response): Promise<ConsoleErrorPa
 
 const getCurrentPath = async () => {
   const requestHeaders = await headers()
-  const pathname = requestHeaders.get(CURRENT_PATHNAME_HEADER) || `${basePath}/`
+  const pathname = requestHeaders.get(CURRENT_PATHNAME_HEADER) || DEFAULT_CURRENT_PATH
   const search = requestHeaders.get(CURRENT_SEARCH_HEADER) || ''
   return `${pathname}${search}`
 }
 
 const redirectToAuthRefresh = async () => {
   const currentPath = await getCurrentPath()
-  redirect(`${basePath}${AUTH_REFRESH_PATH}?redirect_url=${encodeURIComponent(currentPath)}`)
+  redirect(`${AUTH_REFRESH_PATH}?redirect_url=${encodeURIComponent(currentPath)}`)
 }
 
 const handleProfileError = async (error: unknown) => {
@@ -48,9 +48,9 @@ const handleProfileError = async (error: unknown) => {
 
   const errorData = await parseConsoleErrorPayload(error)
   if (errorData?.code === 'not_setup')
-    redirect(`${basePath}/install`)
+    redirect('/install')
   if (errorData?.code === 'not_init_validated')
-    redirect(`${basePath}/init`)
+    redirect('/init')
   if (error.status === 401)
     await redirectToAuthRefresh()
 

@@ -2,6 +2,10 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const varMocks = vi.hoisted(() => ({
+  basePath: '',
+}))
+
 vi.mock('@/config', () => ({
   API_PREFIX: 'http://localhost:5001/console/api',
   CSRF_COOKIE_NAME: () => 'csrf_token',
@@ -15,7 +19,9 @@ vi.mock('@/config/server', () => ({
 }))
 
 vi.mock('@/utils/var', () => ({
-  basePath: '',
+  get basePath() {
+    return varMocks.basePath
+  },
 }))
 
 const getSetCookieHeaders = (headers: Headers) => {
@@ -38,7 +44,9 @@ const createRequest = (url: string, cookie?: string) => ({
 describe('auth refresh route', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.resetModules()
     vi.unstubAllGlobals()
+    varMocks.basePath = ''
   })
 
   it('should refresh cookies and redirect back to the requested path', async () => {
@@ -79,6 +87,44 @@ describe('auth refresh route', () => {
     ])
   })
 
+  it('should include basePath in browser redirect locations', async () => {
+    varMocks.basePath = '/dify'
+    const headers = new Headers()
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers,
+    } as Response)
+    vi.stubGlobal('fetch', fetchMock)
+    const { GET } = await import('../route')
+
+    const response = await GET(createRequest(
+      'http://localhost:3000/dify/auth/refresh?redirect_url=%2Fapps',
+      'refresh_token=old-refresh',
+    ))
+
+    expect(response.status).toBe(303)
+    expect(response.headers.get('location')).toBe('/dify/apps')
+  })
+
+  it('should not duplicate basePath when redirect target already includes it', async () => {
+    varMocks.basePath = '/dify'
+    const headers = new Headers()
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      headers,
+    } as Response)
+    vi.stubGlobal('fetch', fetchMock)
+    const { GET } = await import('../route')
+
+    const response = await GET(createRequest(
+      'http://localhost:3000/dify/auth/refresh?redirect_url=%2Fdify%2Fapps',
+      'refresh_token=old-refresh',
+    ))
+
+    expect(response.status).toBe(303)
+    expect(response.headers.get('location')).toBe('/dify/apps')
+  })
+
   it('should redirect to signin when refresh token is rejected', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })))
     const { GET } = await import('../route')
@@ -90,6 +136,20 @@ describe('auth refresh route', () => {
 
     expect(response.status).toBe(303)
     expect(response.headers.get('location')).toBe('/signin?redirect_url=%2Fapps')
+  })
+
+  it('should include basePath in signin fallback locations', async () => {
+    varMocks.basePath = '/dify'
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 401 })))
+    const { GET } = await import('../route')
+
+    const response = await GET(createRequest(
+      'http://localhost:3000/dify/auth/refresh?redirect_url=%2Fapps',
+      'refresh_token=expired',
+    ))
+
+    expect(response.status).toBe(303)
+    expect(response.headers.get('location')).toBe('/dify/signin?redirect_url=%2Fapps')
   })
 
   it('should ignore cross-origin redirect targets', async () => {

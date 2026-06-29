@@ -28,6 +28,14 @@ describe('app-publisher utils', () => {
         mode: AppModeEnum.CHAT,
       })).toBe(`https://example.com${basePath}/chat/token-1`)
     })
+
+    it('should not duplicate basePath when the app base url already includes it', () => {
+      expect(getPublisherAppUrl({
+        appBaseUrl: `https://example.com${basePath}`,
+        accessToken: 'token-1',
+        mode: AppModeEnum.CHAT,
+      })).toBe(`https://example.com${basePath}/chat/token-1`)
+    })
   })
 
   describe('isPublisherAccessConfigured', () => {

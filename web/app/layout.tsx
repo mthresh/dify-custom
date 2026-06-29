@@ -6,7 +6,7 @@ import { ThemeProvider } from 'next-themes'
 import { NuqsAdapter } from 'nuqs/adapters/next/app'
 import { IS_PROD } from '@/config'
 import { TanstackQueryInitializer } from '@/context/query-client'
-import { getDatasetMap } from '@/env'
+import { env, getDatasetMap } from '@/env'
 import { getLocaleOnServer } from '@/i18n-config/server'
 import { headers } from '@/next/headers'
 import PartnerStackCookieRecorder from './components/billing/partner-stack/cookie-recorder'
@@ -17,6 +17,8 @@ import { I18nServerProvider } from './components/provider/i18n-server'
 import RoutePrefixHandle from './routePrefixHandle'
 import './styles/globals.css'
 import './styles/markdown.css'
+
+const publicAssetPath = (path: `/${string}`) => `${env.NEXT_PUBLIC_BASE_PATH}${path}`
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -36,17 +38,17 @@ const LocaleLayout = async ({
   return (
     <html lang={locale ?? 'en'} className="h-full" suppressHydrationWarning>
       <head>
-        <link rel="manifest" href="/manifest.json" />
+        <link rel="manifest" href={publicAssetPath('/manifest.json')} />
         <meta name="theme-color" content="#1C64F2" />
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Dify" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/icon-192x192.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/icon-192x192.png" />
+        <link rel="apple-touch-icon" href={publicAssetPath('/apple-touch-icon.png')} />
+        <link rel="icon" type="image/png" sizes="32x32" href={publicAssetPath('/icon-192x192.png')} />
+        <link rel="icon" type="image/png" sizes="16x16" href={publicAssetPath('/icon-192x192.png')} />
         <meta name="msapplication-TileColor" content="#1C64F2" />
-        <meta name="msapplication-config" content="/browserconfig.xml" />
+        <meta name="msapplication-config" content={publicAssetPath('/browserconfig.xml')} />
 
         <ReactScanLoader />
       </head>

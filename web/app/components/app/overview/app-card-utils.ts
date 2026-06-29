@@ -6,6 +6,7 @@ import { IS_CE_EDITION } from '@/config'
 import { AccessMode } from '@/models/access-control'
 import { AppModeEnum } from '@/types/app'
 import { basePath } from '@/utils/var'
+import { buildWebAppUrl } from '../web-app-url'
 
 type OverviewCardType = 'api' | 'webapp'
 
@@ -258,7 +259,7 @@ export const getAppCardDisplayState = ({
     toggleDisabled,
     runningStatus,
     isMinimalState: appUnpublished || missingStartNode,
-    accessibleUrl: isApp ? `${appBaseUrl}${basePath}/${appMode}/${accessToken}` : (appInfo.api_base_url ?? ''),
+    accessibleUrl: isApp ? buildWebAppUrl({ appBaseUrl, appMode, accessToken }) : (appInfo.api_base_url ?? ''),
   }
 }
 
