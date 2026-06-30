@@ -22,14 +22,11 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-<<<<<<< ours
     env:
       IMAGE_NAME: dify-web:${{ inputs.image_tag }}
       TAR_PATH: /tmp/dify-web-${{ inputs.image_tag }}-linux-amd64.tar
       TGZ_PATH: /tmp/dify-web-${{ inputs.image_tag }}-linux-amd64.tar.gz
       ARTIFACT_NAME: dify-web-${{ inputs.image_tag }}-linux-amd64
-=======
->>>>>>> theirs
 
     steps:
       - name: Check out repository
@@ -38,7 +35,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-<<<<<<< ours
       - name: Validate inputs
         env:
           BASE_PATH: ${{ inputs.base_path }}
@@ -53,14 +49,6 @@ jobs:
             echo "base_path must be empty or start with /." >&2
             exit 1
           fi
-=======
-      - name: Prepare artifact names
-        run: |
-          echo "IMAGE_NAME=dify-web:${{ inputs.image_tag }}" >> "$GITHUB_ENV"
-          echo "TAR_PATH=/tmp/dify-web-${{ inputs.image_tag }}-linux-amd64.tar" >> "$GITHUB_ENV"
-          echo "TGZ_PATH=/tmp/dify-web-${{ inputs.image_tag }}-linux-amd64.tar.gz" >> "$GITHUB_ENV"
-          echo "ARTIFACT_NAME=dify-web-${{ inputs.image_tag }}-linux-amd64" >> "$GITHUB_ENV"
->>>>>>> theirs
 
       - name: Build Docker image tar
         uses: docker/build-push-action@v6
