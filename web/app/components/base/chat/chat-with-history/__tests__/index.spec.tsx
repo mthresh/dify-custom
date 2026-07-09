@@ -130,6 +130,16 @@ describe('ChatWithHistory', () => {
     })
   })
 
+  it('keeps customer service desktop chat body shrinkable inside the viewport shell', () => {
+    vi.mocked(useBreakpoints).mockReturnValue(MediaType.pc)
+
+    const { container } = render(<ChatWithHistory customerServiceMode />)
+
+    const root = container.firstElementChild
+    expect(root).toHaveClass('min-h-0')
+    expect(container.querySelector('.relative.min-h-0.grow')).toBeInTheDocument()
+  })
+
   it('renders desktop view with collapsed sidebar and tests hover effects', () => {
     vi.mocked(useBreakpoints).mockReturnValue(MediaType.pc)
     vi.mocked(useChatWithHistory).mockReturnValue({

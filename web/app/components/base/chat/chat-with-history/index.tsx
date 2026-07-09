@@ -55,7 +55,7 @@ const ChatWithHistory: FC<ChatWithHistoryProps> = ({
 
   return (
     <div className={cn(
-      'flex h-full',
+      'flex h-full min-h-0',
       customerServiceMode
         ? 'bg-white'
         : 'bg-background-default-burn',
@@ -96,7 +96,7 @@ const ChatWithHistory: FC<ChatWithHistoryProps> = ({
           </div>
         </div>
       )}
-      <div className={cn('relative grow p-2', isMobile && 'h-[calc(100%-56px)] p-0', customerServiceMode && 'p-0!', customerServiceMode && isMobile && 'h-[calc(100%-48px)]')}>
+      <div className={cn('relative min-h-0 grow p-2', isMobile && 'h-[calc(100%-56px)] p-0', customerServiceMode && 'p-0!', customerServiceMode && isMobile && 'h-[calc(100%-48px)]')}>
         {!customerServiceMode && isSidebarCollapsed && (
           <div
             className={cn(
